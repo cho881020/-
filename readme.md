@@ -79,3 +79,9 @@
       - 현재 : /v2/order/order_work
       - 변경 : /v3/aprtment/today_orders - GET
 
+   3. 파라미터
+
+      - 유저토큰 - Header
+      - 어느 아파트 - apartment_id
+      - 어느날짜 - date
+        - null일 경우 오늘날짜로

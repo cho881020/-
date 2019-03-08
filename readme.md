@@ -92,3 +92,23 @@
         - 내가 수락한 업무 목록을 Array로
       - 결과 : 내가 수락한 order_works가 array로 들어가게됨.
         - 오더워크의 부가정보는 예약현황과 같은 방식으로.
+
+## Sort 근무 관련
+
+1. 동 목록 화면
+
+   1. 요구사항
+
+      - 아파트의 의 동 목록을 보여주자
+      - 배송 수량을 보여주자
+        - 모든 order_work에서 수행된 박스 카운트의 합
+      - 완료 보고 여부도.
+        - 모든 order_work가 전부 완료되었을때만 된걸로.
+      - 여러개의 order_work를 일괄처리.
+        - 
+
+   2. 엔드포인트
+
+      - 현재 : /v2/order/order_work/process
+
+      - 변경 : /v3/apartment/order_process - GET

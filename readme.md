@@ -95,7 +95,7 @@
 
 ## Sort 근무 관련
 
-1. 동 목록 화면
+1. 동 목록 화면 - 근무현황
 
    1. 요구사항
 
@@ -105,10 +105,25 @@
       - 완료 보고 여부도.
         - 모든 order_work가 전부 완료되었을때만 된걸로.
       - 여러개의 order_work를 일괄처리.
-        - 
-
+        - 씨리얼 발급 절차처럼 파라미터를 order_work_ids 로 (배열로)
    2. 엔드포인트
 
       - 현재 : /v2/order/order_work/process
-
       - 변경 : /v3/apartment/order_process - GET
+   3. 파라미터
+      - order_work_ids 로 (배열로)
+   4. 응답 형테
+
+   ~~~json
+   {
+       "동목록":[
+           {
+               "동이름":"1동",
+          		"수량":100,
+               "보고여부":true/false
+           }
+       ]
+   }
+   ~~~
+
+   

@@ -7,6 +7,8 @@
 - 관련 api의 주소는 전부 /v3/ 으로 시작합니다.
   - 기존의 이름에서 /v3/을 붙이거나, /v2/의 숫자를 바꾸거나 하는 식으로 진행합니다.
   - 이전 api와의 호환을 위해 (업데이트 고려) 새 api에 작업합니다.
+- 리프트 예약 / 진행 관련
+  - order_work_lift_process를 기반으로 움직인다. 
 
 ## 예약 ~ 근무 상세
 
@@ -14,39 +16,61 @@
 
    1. 요구사항
 
-      - 날짜별로 예약을 한 아파트를 목록으로 보여주고,
+      - 날짜별로 예약을 한 아파트/업무를 목록으로 보여 줍니다.
 
-      - 그 아파트의 하위객체로 발주 된 order_works 목록을 담아줍니다.
-
-        ~~~json
-        [
-            {"아파트":
-         		{"이름":"갈매 5단지 와이시티", 
-        			"업무목록":[
-                        {
-                            "택배사":"CJ",
-                            "업무종류":"SORT"
-                        },      
-        			    {
-        			          "택배사":"우체국",
-                  			"업무종류":"LIFT"
-              			},
-          			]
-         		}
-        	}
-        ]
+      - ~~~sql
+        SELECT DISTINCT ap_id, user_id, reservation_date, work_type FROM reservations ORDER BY created_at DESC;
         ~~~
+
+      - 진행중인 솔트 업무는 reservations.py 에서 contract를 확인했을때 내가 잡은거라면 is_processing = True 로 담아서 보내주시고, 잡은게 없다면 False로 담아주세요
+
+        - 진행중인 리프트 업무?
+          - contract -> lift_prcoess 목록을 돌아보다가, 내가 진행중인게 있다면  is_processing = True
+
+      - 수락가능?
+
+        - SORT
+          - order_work => contract가 null 이면 수락가능. is_contractable = True
+        - LIFT
+          - 솔트는 끝났는데, contract_id가 없는 order_work_lift_process 가 있다면 True
+          - 어렵다. 같이 해야할듯.
 
       - 기존에는 예약 목록을 먼저 보여줬는데, 아파트 별로 가져오는 방식으로 해야할듯 합니다.
 
         - 가능하면 모델 에서 처리하는 식으로..!
 
-      - 예약목록을 따로 보여주진 않고, 예약한 아파트 목록에 바로 발주된 업무 목록을 보여주자.
-
    2. Endpoint
 
       - 현재 : /my_reservation
-      - 변경 : /v3/my_reservation
+      - 변경 : /v3/my_reservation 834
+
+   3. 파라미터
+
+      - 유져토큰 - 헤더
+      - 날짜(date) - query
+
+   4. 응답형태
+
+      ~~~json
+      {
+        "reservations":[
+          {
+            "apartname":"갈매 5단지 와이시티",
+            "work_type":"SORT",
+            "is_processing":true,
+            "is_contractable":false
+          },
+          {
+            "apartname":"갈매 5단지 와이시티",
+            "work_type":"LIFT",
+            "is_processing":true,
+            "is_contractable":true
+          }
+        ]
+      }
+      ~~~
+
+      
 
 2. 근무 상세
 
@@ -147,6 +171,34 @@
             - 한진 : 30개
             - CJ : 0개
             - 이런 경우도 있을 수 있으니까.
+
    2. 엔드포인트
       - 현재 : /v2/order/order_work/process
       - 변경 : /v3/apartment/sort_order_process - POST
+
+   3. 파라미터
+
+      - order_work_ids : 어느 업무들을 처리하는지 (배열로)
+        - 하나씩 기록하던걸  for문으로 등록하는 방식이면 충분할 듯.
+      - dong_id : 어느 동에 대한 처리 할듯.
+
+   4. 응답 형태
+
+      ~~~json
+      {
+      	'code': 200,
+      	'message': 'SORT 동별 완료보고 성공',
+      	'data': {
+              'order_works': [
+                  {
+                      "업무정보":"업무1번"
+                  },
+                  {
+                      "업무정보":"업무2번"
+                  }
+              ]
+      	}
+      }
+      ~~~
+
+      
